@@ -1,0 +1,58 @@
+
+
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+chroma_db/
+.env
+.DS_Store
+
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+chroma_db/
+.env
+.DS_Store
+
+# Environnement virtuel
+# Environnement virtuel
+.venv/
+venv/
+env/
+
+# Environnement virtuel
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Base vectorielle
+chroma_db/
+
+# Variables d'environnement
+.env
+
+# macOS
+.DS_Store
+
+# Variables d'environnement locales
+.env
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
