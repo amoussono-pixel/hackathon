@@ -161,6 +161,42 @@ def init_database():
 #     python database.py
 #
 # Elle permet donc de créer automatiquement les tables.
+# ============================================================
+# FONCTIONS POUR ENREGISTRER LES CONVERSATIONS ET LES MESSAGES
+# ============================================================
+
+def create_conversation():
+    """Crée une nouvelle conversation et retourne son identifiant."""
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO conversations (status)
+        VALUES ('in_incomplete')
+    """)
+
+    conversation_id = cursor.lastrowid
+
+    connection.commit()
+    connection.close()
+
+    return conversation_id
+
+
+def add_message(conversation_id, role, content):
+    """Enregistre un message dans une conversation."""
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO messages (conversation_id, role, content)
+        VALUES (?, ?, ?)
+    """, (conversation_id, role, content))
+
+    connection.commit()
+    connection.close()
 
 if __name__ == "__main__":
 
