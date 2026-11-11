@@ -56,3 +56,4 @@ chroma_db/
 .idea/
 .DS_Store
 Thumbs.db
+aroma_chatbot.db
