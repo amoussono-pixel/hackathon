@@ -12,17 +12,28 @@ import config
 import rag
 import database
 
-SYSTEM_PROMPT = """Tu es un conteur bienveillant qui répond aux questions d'enfants sur une histoire.
-Règles :
-- Réponds UNIQUEMENT à partir des extraits de l'histoire fournis.
-- Si la réponse ne se trouve pas dans les extraits, dis gentiment que l'histoire ne le précise pas.
-- Utilise des phrases simples et claires, adaptées à un enfant.
-- Réponds en français, en quelques phrases maximum."""
+SYSTEM_PROMPT = """
+Tu es un assistant spécialisé dans les arômes pour boissons.
+
+Ton rôle est d'aider le client à choisir un arôme adapté à son besoin.
+
+IMPORTANT :
+- Ne raconte jamais l'histoire de Léo.
+- L'histoire sert uniquement de base documentaire.
+- Analyse le besoin du client.
+- Propose les arômes adaptés parmi les informations disponibles.
+- Présente plusieurs choix lorsque c'est possible.
+- Le client doit pouvoir choisir un arôme parmi tes propositions.
+- Ne crée jamais un arôme qui n'est pas présent dans les informations disponibles.
+
+Réponds de manière claire et simple.
+"""
 
 app = FastAPI(
     title="Story RAG API",
-    description="Pose des questions sur l'histoire chargée dans la base vectorielle. "
-                "Les réponses sont générées par un LLM Ollama à partir des passages retrouvés.",
+    description="Assistant de recommandation d'arômes pour les clients. "
+            "L'assistant analyse les besoins du client et propose "
+            "des arômes adaptés à partir des informations disponibles.",
     version="1.0.0",
 )
 # Initialise la base de données SQLite au démarrage de l'API
@@ -57,6 +68,7 @@ class AskResponse(BaseModel):
     answer: str
     model: str
     sources: list[Source]
+
 
 # ============================================================
 # Recherche des passages les plus pertinents
@@ -98,23 +110,50 @@ def search(req: AskRequest):
 # ============================================================
 # Génération d'une réponse à partir des passages retrouvés
 # ============================================================
-@app.post("/ask", response_model=AskResponse, tags=["histoire"])
+@app.post("/ask", response_model=AskResponse, tags=["arômes"])
 def ask(req: AskRequest):
-    """Répond à une question sur l'histoire à partir des passages retrouvés."""
-    conversation_id = database.create_conversation()
-    database.add_message(conversation_id, "user", req.question)
+    """Aide le client à choisir un arôme à partir de ses besoins."""
+
+    conversation_id = req.conversation_id
+
+    if conversation_id == 0:
+        conversation_id = database.create_conversation()
+
+    history = database.get_messages(conversation_id)
+
+    database.add_message(
+        conversation_id,
+        "user",
+        req.question
+    )
+
     sources = retrieve(req.question, req.top_k)
-    context = "\n\n---\n\n".join(f"[{s.chapter}]\n{s.text}" for s in sources)
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"Extraits de l'histoire :\n\n{context}\n\nQuestion : {req.question}"},
-    ]
+
+    # ... le reste de ton code ...
+
     try:
         answer = rag.chat(messages)
-        database.add_message(conversation_id, "assistant", answer)
-    except Exception as exc:  # Ollama injoignable, modèle absent...
-        raise HTTPException(502, f"Erreur Ollama : {exc}") from exc
-    return AskResponse(question=req.question, answer=answer.strip(), model=config.LLM_MODEL, sources=sources)
+
+        database.add_message(
+            conversation_id,
+            "assistant",
+            answer
+        )
+
+    except Exception as exc:
+        raise HTTPException(
+            502,
+            f"Erreur Ollama : {exc}"
+        ) from exc
+
+    return AskResponse(
+        question=req.question,
+        answer=answer.strip(),
+        model=config.LLM_MODEL,
+        sources=sources
+    )
+
+
 
 # ============================================================
 # Lancement de l'API

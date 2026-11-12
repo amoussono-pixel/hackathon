@@ -198,6 +198,30 @@ def add_message(conversation_id, role, content):
     connection.commit()
     connection.close()
 
+def get_messages(conversation_id):
+    """Récupère les messages d'une conversation dans l'ordre."""
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT role, content
+        FROM messages
+        WHERE conversation_id = ?
+        ORDER BY id ASC
+    """, (conversation_id,))
+
+    messages = cursor.fetchall()
+
+    connection.close()
+
+    return [
+        {
+            "role": role,
+            "content": content
+        }
+        for role, content in messages
+    ]
 if __name__ == "__main__":
 
     # Création de la base et des tables
