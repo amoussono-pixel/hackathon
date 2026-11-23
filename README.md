@@ -1,5 +1,21 @@
 # Story RAG API
 
+## Évaluation des projets : démonstration
+
+`POST /score` attribue un score expérimental : 40 % pour les critères structurés
+et 60 % pour la description. Le modèle extrait quatre rubriques (idée, usage,
+public et contraintes), à raison de 25 points par rubrique détectée. Les
+citations sont vérifiées dans la description ; si elles sont invalides, l'API
+demande au modèle de corriger sa réponse, jusqu'à trois tentatives au total.
+Si elles restent invalides, l'API renvoie une erreur 502 plutôt qu'un score.
+Une description sous 50/100 est
+plafonnée à 64/100 au total.
+
+La vérification des citations ne garantit pas que le modèle les classe
+correctement. Les barèmes sont fictifs, non validés par Givaudan et ne doivent
+pas servir à une décision métier réelle. Le score n'utilise pas le document
+indexé ; sa configuration est dans `scoring.py`.
+
 Pose des questions sur une histoire pour enfants (`story.txt`) via une API FastAPI.
 Les passages pertinents sont retrouvés dans une base vectorielle (ChromaDB), puis un
 LLM Ollama rédige la réponse.

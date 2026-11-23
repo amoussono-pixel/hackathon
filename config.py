@@ -21,3 +21,6 @@ CHUNK_OVERLAP_PARAGRAPHS = int(os.getenv("CHUNK_OVERLAP_PARAGRAPHS", "1"))
 
 # Recherche
 TOP_K = int(os.getenv("TOP_K", "4"))
+
+# Si définie, les routes /ask, /search et /score exigent `Authorization: Bearer <API_KEY>`
+API_KEY = os.getenv("API_KEY", "")

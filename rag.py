@@ -45,10 +45,11 @@ def embed_query(text: str) -> list[float]:
     return embed([text], "search_query: " if _uses_nomic_prefixes() else "")[0]
 
 
-def chat(messages: list[dict]) -> str:
+def chat(messages: list[dict], json_output: bool = False) -> str:
     response = _ollama.chat(
         model=config.LLM_MODEL,
         messages=messages,
-        options={"temperature": 0.2},
+        options={"temperature": 0.0 if json_output else 0.2},
+        format="json" if json_output else None,
     )
     return response["message"]["content"]

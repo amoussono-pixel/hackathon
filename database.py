@@ -198,6 +198,34 @@ def add_message(conversation_id, role, content):
     connection.commit()
     connection.close()
 
+
+def conversation_exists(conversation_id):
+    """Indique si une conversation existe."""
+
+    connection = get_connection()
+    row = connection.execute(
+        "SELECT 1 FROM conversations WHERE id = ?", (conversation_id,)
+    ).fetchone()
+    connection.close()
+    return row is not None
+
+
+def get_messages(conversation_id, limit=12):
+    """Retourne les derniers messages d'une conversation, du plus ancien au plus récent."""
+
+    connection = get_connection()
+    rows = connection.execute(
+        """
+        SELECT role, content FROM (
+            SELECT id, role, content FROM messages
+            WHERE conversation_id = ? ORDER BY id DESC LIMIT ?
+        ) ORDER BY id
+        """,
+        (conversation_id, limit),
+    ).fetchall()
+    connection.close()
+    return [{"role": row["role"], "content": row["content"]} for row in rows]
+
 if __name__ == "__main__":
 
     # Création de la base et des tables
